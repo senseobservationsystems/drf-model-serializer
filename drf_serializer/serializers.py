@@ -7,7 +7,7 @@ class ModelSerializer(DRFModelSerializer):
 
     def validate(self, data):
         # Use existing model instance when it's an update operation or
-        # initiate new instance hen it's a create operation
+        # initiate new instance when it's a create operation
         instance = self.instance if self.instance else self.Meta.model()
         for key, value in data.items():
             setattr(instance, key, value)

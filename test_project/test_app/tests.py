@@ -66,7 +66,7 @@ class TestRecipeDeserializer(TestCase):
         )
 
     def test_recipe_deserializer_with_valid_payload(self):
-        """Test recipe deserializer with recipe name that exceed 25 characters"""
+        """Test recipe deserializer with valid payload, data successfully saved into database"""
         payload = {
             "recipe_id": "0f14d0ab-9605-4a62-a9e4-5ed26688389b",
             "name": "Chicken Snitzel"
