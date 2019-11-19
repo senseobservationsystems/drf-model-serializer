@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.1",
     author="Panji Y. Wiwaha",
     author_email="panjiyudasetya@gmail.com",
-    description="A simple library that inherit django model serializer to automatically validate data model.",
+    description="A simple library that enhance 'ModelSerializer' class so that it performs object-level validation for free.",
     keywords=['django', 'drf', 'serializer'],
     long_description=long_description,
     long_description_content_type="text/markdown",
