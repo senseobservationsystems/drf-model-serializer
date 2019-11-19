@@ -1,5 +1,4 @@
-from django.core.exceptions import ValidationError as DjangoValidationError
-from rest_framework.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer as DRFModelSerializer, as_serializer_error
 
 
@@ -15,7 +14,7 @@ class ModelSerializer(DRFModelSerializer):
         # Validate data model
         try:
             instance.clean()
-        except (ValidationError, DjangoValidationError) as exc:
-            raise ValidationError(detail=as_serializer_error(exc))
+        except ValidationError as exc:
+            raise ValidationError(message=as_serializer_error(exc))
 
         return data
