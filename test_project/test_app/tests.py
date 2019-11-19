@@ -9,14 +9,16 @@ class TestRecipeSerializer(TestCase):
 
     def test_recipe_serializer_data(self):
         """Test serializing data, returns correct data"""
+        ingredients = ('Blend 1 cup each orange juice and raspberries#'
+                       '1/2 cup plain yogurt#'
+                       '1 cup ice#and sugar to taste')
+        Recipe(name="Raspberry Orange", type=Recipe.DRINK, ingredients=ingredients).save()
 
-        # Create dummy data
-        Recipe(recipe_id="0f14d0ab-9605-4a62-a9e4-5ed26688389b", name="Chicken Snitzel").save()
-
-        recipe = Recipe.objects.get(recipe_id="0f14d0ab-9605-4a62-a9e4-5ed26688389b")
+        recipe = Recipe.objects.first()
         expected = {
-            "recipe_id": str(recipe.recipe_id),
-            "name": recipe.name
+            "name": recipe.name,
+            "type": recipe.type,
+            "ingredients": recipe.ingredients
         }
 
         serializer = RecipeSerializer(data=expected)
@@ -26,12 +28,22 @@ class TestRecipeSerializer(TestCase):
 
 
 class TestRecipeDeserializer(TestCase):
+    """
+    The scope of this tests are only to prove that:
+      - Any custom field-level validation on a Model will be performed on `serializer.is_valid()` check.
+      - Any object-level validation on a `clean()` method will be performed on `serializer.is_valid()` check as well.
+    """
 
-    def test_recipe_deserializer_with_invalid_recipe_id(self):
-        """Test recipe deserializer with invalid id"""
+    def test_recipe_deserializer_with_no_ingredients_are_defined(self):
+        """
+        Test recipe deserializer with invalid ingredients.
+        The test will ensure that our custom validator in `validators` attribute at the `ingredients` field
+        will be triggered when `serializer.is_valid()` performed.
+        """
         payload = {
-            "recipe_id": "invalid-id",
-            "name": "Chicken Snitzel"
+            "name": "Sparkling Water",
+            "type": Recipe.DRINK,
+            "ingredients": "##     #"  # intentionally set an invalid ingredients; it's following the rules, but no ingredients are defined.
         }
 
         serializer = RecipeSerializer(data=payload)
@@ -42,15 +54,20 @@ class TestRecipeDeserializer(TestCase):
         self.assertDictEqual(
             ctx.exception.detail,
             {
-                'recipe_id': [ErrorDetail(string='Must be a valid UUID.', code='invalid')]
+                'ingredients': [ErrorDetail(string='Ensure that any recipe at least has one ingredient defined.', code='invalid')]
             }
         )
 
-    def test_recipe_deserializer_with_invalid_recipe_name(self):
-        """Test recipe deserializer with recipe name that exceed 25 characters"""
+    def test_recipe_deserializer_with_invalid_ingredients_for_a_drink_recipe(self):
+        """
+        Test recipe deserializer with invalid ingredients for a drink recipe.
+        The test will ensure that any object-level validation inside `clean()` method will be triggered
+        when `serializer.is_valid()` performed.
+        """
         payload = {
-            "recipe_id": "0f14d0ab-9605-4a62-a9e4-5ed26688389b",
-            "name": "12345678901234567890123456"
+            "name": "Raspberry Orange",
+            "type": Recipe.DRINK,
+            "ingredients": "This only contain one ingredient"
         }
 
         serializer = RecipeSerializer(data=payload)
@@ -61,21 +78,56 @@ class TestRecipeDeserializer(TestCase):
         self.assertDictEqual(
             ctx.exception.detail,
             {
-                'name': [ErrorDetail(string='Ensure this field has no more than 25 characters.', code='max_length')]
+                'ingredients': [ErrorDetail(string='Any drink recipe at least has two ingredients are defined.', code='invalid')]
+            }
+        )
+
+    def test_recipe_deserializer_with_invalid_ingredients_for_a_main_dish_recipe(self):
+        """
+        Test recipe deserializer with invalid ingredients for a main dish recipe.
+        The test will ensure that any object-level validation inside `clean()` method will be triggered
+        when `serializer.is_valid()` performed.
+        """
+        payload = {
+            "name": "Baked Teriyaki Chicken",
+            "type": Recipe.MAIN_DISH,
+            "ingredients": "First ingredient#Second ingredient"
+        }
+
+        serializer = RecipeSerializer(data=payload)
+
+        with self.assertRaises(ValidationError) as ctx:
+            serializer.is_valid(raise_exception=True)
+
+        self.assertDictEqual(
+            ctx.exception.detail,
+            {
+                'ingredients': [ErrorDetail(string='Any main dish recipe at least has three ingredients are defined.', code='invalid')]
             }
         )
 
     def test_recipe_deserializer_with_valid_payload(self):
         """Test recipe deserializer with valid payload, data successfully saved into database"""
+        ingredients = ('1 tablespoon cornstarch#'
+                       '1 tablespoon cold water#'
+                       '1/2 cup white sugar#'
+                       '1/2 cup soy sauce#'
+                       '1/4 cup cider vinegar#'
+                       '1 clove garlic, minced#'
+                       '1/2 teaspoon ground ginger#'
+                       '1/4 teaspoon ground black pepper#'
+                       '12 skinless chicken thighs')
         payload = {
-            "recipe_id": "0f14d0ab-9605-4a62-a9e4-5ed26688389b",
-            "name": "Chicken Snitzel"
+            "name": "Baked Teriyaki Chicken",
+            "type": Recipe.MAIN_DISH,
+            "ingredients": ingredients
         }
 
         serializer = RecipeSerializer(data=payload)
         serializer.is_valid(True)
         serializer.save()
 
-        recipe = Recipe.objects.get(recipe_id=payload['recipe_id'])
-        self.assertEqual(payload['recipe_id'], str(recipe.recipe_id))
-        self.assertEqual(payload['name'], recipe.name)
+        recipe = Recipe.objects.first()
+        self.assertEqual(payload['name'], str(recipe.name))
+        self.assertEqual(payload['type'], recipe.type)
+        self.assertEqual(payload['ingredients'], recipe.ingredients)
