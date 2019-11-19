@@ -1,8 +1,8 @@
 from django.test import TestCase
 from rest_framework.exceptions import ErrorDetail, ValidationError
 
-from .models import Recipe
-from .serializers import RecipeSerializer
+from ..models import Recipe
+from ..serializers import RecipeSerializer
 
 
 class TestRecipeSerializer(TestCase):
