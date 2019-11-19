@@ -1,17 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 
-
-def validate_ingredients(value):
-    """
-    This is an example of a custom field-level validation on recipe data models.
-    You can leverage `validators` attribute so both Admin and Serializer
-    can use it with no code duplication required.
-    https://docs.djangoproject.com/en/2.2/ref/validators/
-    """
-    ingredients = Recipe().strip_empty_ingredients(value)
-    if not ingredients or len(ingredients.split('#')) < 1:
-        raise ValidationError('Ensure that any recipe at least has one ingredient defined.', 'invalid')
+from .validators import validate_ingredients
 
 
 class Recipe(models.Model):
@@ -54,12 +44,12 @@ class Recipe(models.Model):
         # eg: water & syrup
         if self.type == self.DRINK and size_ingredients < 2:
             raise ValidationError(
-                {'ingredients': 'Any drink recipe at least has two ingredients are defined.'},
+                {'ingredients': 'Any drink recipe has at least two ingredients defined.'},
                 'invalid')
 
         # Assume that any recipe for a main dish should contain at least 3 ingredients.
         # eg: meat, black pepper, and salt
         if self.type == self.MAIN_DISH and size_ingredients < 3:
             raise ValidationError(
-                {'ingredients': 'Any main dish recipe at least has three ingredients are defined.'},
+                {'ingredients': 'Any main dish recipe has at least three ingredients defined.'},
                 'invalid')

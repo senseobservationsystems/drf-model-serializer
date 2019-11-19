@@ -1,4 +1,4 @@
-from drf_serializer.serializers import ModelSerializer
+from drf_model_serializer.serializers import ModelSerializer
 from .models import Recipe
 
 

@@ -9,7 +9,6 @@ check_styling_and_unit_tests() {
 
     flake8 --ignore=E501,E271,E272,W602,W504 --exclude=venv
     cd test_project
-    python manage.py makemigrations
     python manage.py migrate
     python manage.py test
 }

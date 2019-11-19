@@ -19,7 +19,7 @@ class TestRecipeAdminForm(TestCase):
         self.client = Client()
         self.client.login(username='admin', password='Test12345')
 
-    def test_create_receipe_with_invalid_ingredients(self):
+    def test_create_recipe_with_invalid_ingredients(self):
         """
         Test recipe deserializer with invalid ingredients.
         The test will ensure that our custom validator in `validators` attribute at the `ingredients` field
@@ -33,7 +33,7 @@ class TestRecipeAdminForm(TestCase):
 
         response = self.client.post(reverse('admin:test_app_recipe_add'), payload)
         self.assertIsNotNone(response.context_data['errors'])
-        self.assertIn('Ensure that any recipe at least has one ingredient defined.', response.context_data['errors'][0])
+        self.assertIn('Ensure any recipe has at least one ingredient defined.', response.context_data['errors'][0])
 
     def test_create_recipe_with_invalid_ingredients_for_a_drink_recipe(self):
         """
@@ -49,7 +49,7 @@ class TestRecipeAdminForm(TestCase):
 
         response = self.client.post(reverse('admin:test_app_recipe_add'), payload)
         self.assertIsNotNone(response.context_data['errors'])
-        self.assertIn('Any drink recipe at least has two ingredients are defined.', response.context_data['errors'][0])
+        self.assertIn('Any drink recipe has at least two ingredients defined.', response.context_data['errors'][0])
 
     def test_create_recipe_with_invalid_ingredients_for_a_main_dish_recipe(self):
         """
@@ -65,7 +65,7 @@ class TestRecipeAdminForm(TestCase):
 
         response = self.client.post(reverse('admin:test_app_recipe_add'), payload)
         self.assertIsNotNone(response.context_data['errors'])
-        self.assertIn('Any main dish recipe at least has three ingredients are defined.', response.context_data['errors'][0])
+        self.assertIn('Any main dish recipe has at least three ingredients defined.', response.context_data['errors'][0])
 
     def test_create_recipe_with_valid_payload(self):
         """Test recipe deserializer with valid payload, data successfully saved into database"""

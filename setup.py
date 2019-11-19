@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="drf-serializer",
+    name="drf-model-serializer",
     version="0.0.1",
     author="Panji Y. Wiwaha",
     author_email="panjiyudasetya@gmail.com",
@@ -12,7 +12,7 @@ setuptools.setup(
     keywords=['django', 'drf', 'serializer'],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/senseobservationsystems/drf-serializer",
+    url="https://github.com/senseobservationsystems/drf-model-serializer",
     packages=setuptools.find_packages(),
     classifiers=[
         "Environment :: Web Environment",

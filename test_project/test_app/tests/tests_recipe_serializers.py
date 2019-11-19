@@ -12,7 +12,8 @@ class TestRecipeSerializer(TestCase):
         ingredients = ('Blend 1 cup each orange juice and raspberries#'
                        '1/2 cup plain yogurt#'
                        '1 cup ice#and sugar to taste')
-        Recipe(name="Raspberry Orange", type=Recipe.DRINK, ingredients=ingredients).save()
+        recipe = Recipe(name="Raspberry Orange", type=Recipe.DRINK, ingredients=ingredients)
+        recipe.save()
 
         recipe = Recipe.objects.first()
         expected = {
@@ -51,12 +52,10 @@ class TestRecipeDeserializer(TestCase):
         with self.assertRaises(ValidationError) as ctx:
             serializer.is_valid(raise_exception=True)
 
-        self.assertDictEqual(
-            ctx.exception.detail,
-            {
-                'ingredients': [ErrorDetail(string='Ensure that any recipe at least has one ingredient defined.', code='invalid')]
-            }
-        )
+        expected = {
+            'ingredients': [ErrorDetail(string='Ensure any recipe has at least one ingredient defined.', code='invalid')]
+        }
+        self.assertDictEqual(ctx.exception.detail, expected)
 
     def test_recipe_deserializer_with_invalid_ingredients_for_a_drink_recipe(self):
         """
@@ -75,12 +74,10 @@ class TestRecipeDeserializer(TestCase):
         with self.assertRaises(ValidationError) as ctx:
             serializer.is_valid(raise_exception=True)
 
-        self.assertDictEqual(
-            ctx.exception.detail,
-            {
-                'ingredients': [ErrorDetail(string='Any drink recipe at least has two ingredients are defined.', code='invalid')]
-            }
-        )
+        expected = {
+            'ingredients': [ErrorDetail(string='Any drink recipe has at least two ingredients defined.', code='invalid')]
+        }
+        self.assertDictEqual(ctx.exception.detail, expected)
 
     def test_recipe_deserializer_with_invalid_ingredients_for_a_main_dish_recipe(self):
         """
@@ -99,12 +96,10 @@ class TestRecipeDeserializer(TestCase):
         with self.assertRaises(ValidationError) as ctx:
             serializer.is_valid(raise_exception=True)
 
-        self.assertDictEqual(
-            ctx.exception.detail,
-            {
-                'ingredients': [ErrorDetail(string='Any main dish recipe at least has three ingredients are defined.', code='invalid')]
-            }
-        )
+        expected = {
+            'ingredients': [ErrorDetail(string='Any main dish recipe has at least three ingredients defined.', code='invalid')]
+        }
+        self.assertDictEqual(ctx.exception.detail, expected)
 
     def test_recipe_deserializer_with_valid_payload(self):
         """Test recipe deserializer with valid payload, data successfully saved into database"""
@@ -125,9 +120,7 @@ class TestRecipeDeserializer(TestCase):
 
         serializer = RecipeSerializer(data=payload)
         serializer.is_valid(True)
-        serializer.save()
 
-        recipe = Recipe.objects.first()
-        self.assertEqual(payload['name'], str(recipe.name))
-        self.assertEqual(payload['type'], recipe.type)
-        self.assertEqual(payload['ingredients'], recipe.ingredients)
+        self.assertEqual(payload['name'], serializer.validated_data['name'])
+        self.assertEqual(payload['type'], serializer.validated_data['type'])
+        self.assertEqual(payload['ingredients'], serializer.validated_data['ingredients'])
