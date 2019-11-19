@@ -35,7 +35,7 @@ class TestRecipeAdminForm(TestCase):
         self.assertIsNotNone(response.context_data['errors'])
         self.assertIn('Ensure that any recipe at least has one ingredient defined.', response.context_data['errors'][0])
 
-    def test_recipe_deserializer_with_invalid_ingredients_for_a_drink_recipe(self):
+    def test_create_recipe_with_invalid_ingredients_for_a_drink_recipe(self):
         """
         Test recipe deserializer with invalid ingredients for a drink recipe.
         The test will ensure that any object-level validation inside `clean()` method will be triggered
@@ -51,7 +51,7 @@ class TestRecipeAdminForm(TestCase):
         self.assertIsNotNone(response.context_data['errors'])
         self.assertIn('Any drink recipe at least has two ingredients are defined.', response.context_data['errors'][0])
 
-    def test_recipe_deserializer_with_invalid_ingredients_for_a_main_dish_recipe(self):
+    def test_create_recipe_with_invalid_ingredients_for_a_main_dish_recipe(self):
         """
         Test recipe deserializer with invalid ingredients for a main dish recipe.
         The test will ensure that any object-level validation inside `clean()` method will be triggered
@@ -67,7 +67,7 @@ class TestRecipeAdminForm(TestCase):
         self.assertIsNotNone(response.context_data['errors'])
         self.assertIn('Any main dish recipe at least has three ingredients are defined.', response.context_data['errors'][0])
 
-    def test_recipe_deserializer_with_valid_payload(self):
+    def test_create_recipe_with_valid_payload(self):
         """Test recipe deserializer with valid payload, data successfully saved into database"""
         ingredients = ('1 tablespoon cornstarch#'
                        '1 tablespoon cold water#'
