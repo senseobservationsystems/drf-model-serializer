@@ -21,7 +21,7 @@ class TestRecipeAdminForm(TestCase):
 
     def test_create_recipe_with_invalid_ingredients(self):
         """
-        Test recipe deserializer with invalid ingredients.
+        Test creating new recipe through Django Admin with invalid ingredients.
         The test will ensure that our custom validator in `validators` attribute at the `ingredients` field
         will be triggered when `ModelForm.is_valid()` performed under the hood.
         """
@@ -37,7 +37,7 @@ class TestRecipeAdminForm(TestCase):
 
     def test_create_recipe_with_invalid_ingredients_for_a_drink_recipe(self):
         """
-        Test recipe deserializer with invalid ingredients for a drink recipe.
+        Test creating new recipe through Django Admin with invalid ingredients for a drink recipe.
         The test will ensure that any object-level validation inside `clean()` method will be triggered
         when `ModelForm.is_valid()` performed under the hood.
         """
@@ -53,7 +53,7 @@ class TestRecipeAdminForm(TestCase):
 
     def test_create_recipe_with_invalid_ingredients_for_a_main_dish_recipe(self):
         """
-        Test recipe deserializer with invalid ingredients for a main dish recipe.
+        Test creating new recipe through Django Admin with invalid ingredients for a main dish recipe.
         The test will ensure that any object-level validation inside `clean()` method will be triggered
         when `ModelForm.is_valid()` performed under the hood.
         """
@@ -68,7 +68,7 @@ class TestRecipeAdminForm(TestCase):
         self.assertIn('Any main dish recipe has at least three ingredients defined.', response.context_data['errors'][0])
 
     def test_create_recipe_with_valid_payload(self):
-        """Test recipe deserializer with valid payload, data successfully saved into database"""
+        """Test creating new recipe through Django Admin with valid payload, data successfully saved into database"""
         ingredients = ('1 tablespoon cornstarch#'
                        '1 tablespoon cold water#'
                        '1/2 cup white sugar#'
