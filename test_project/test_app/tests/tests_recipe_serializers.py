@@ -12,20 +12,25 @@ class TestRecipeSerializer(TestCase):
         ingredients = ('Blend 1 cup each orange juice and raspberries#'
                        '1/2 cup plain yogurt#'
                        '1 cup ice#and sugar to taste')
-        recipe = Recipe(name="Raspberry Orange", type=Recipe.DRINK, ingredients=ingredients)
+        data = {
+            'name': 'Raspberry Orange',
+            'type': Recipe.DRINK,
+            'ingredients': ingredients
+        }
+        recipe = Recipe(**data)
         recipe.save()
 
         recipe = Recipe.objects.first()
+
+        serializer = RecipeSerializer(data=data)
+        serializer.is_valid(True)
+
         expected = {
             "name": recipe.name,
             "type": recipe.type,
             "ingredients": recipe.ingredients
         }
-
-        serializer = RecipeSerializer(data=expected)
-        serializer.is_valid(True)
-
-        self.assertDictEqual(expected, serializer.data)
+        self.assertDictEqual(serializer.data, expected)
 
 
 class TestRecipeDeserializer(TestCase):
