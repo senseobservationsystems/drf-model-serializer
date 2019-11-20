@@ -26,9 +26,9 @@ class TestRecipeSerializer(TestCase):
         serializer.is_valid(True)
 
         expected = {
-            "name": recipe.name,
-            "type": recipe.type,
-            "ingredients": recipe.ingredients
+            'name': recipe.name,
+            'type': recipe.type,
+            'ingredients': recipe.ingredients
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -47,9 +47,9 @@ class TestRecipeDeserializer(TestCase):
         will be triggered when `serializer.is_valid()` performed.
         """
         payload = {
-            "name": "Sparkling Water",
-            "type": Recipe.DRINK,
-            "ingredients": "##     #"  # intentionally set an invalid ingredients; it's following the rules, but no ingredients are defined.
+            'name': 'Sparkling Water',
+            'type': Recipe.DRINK,
+            'ingredients': '##     #'  # intentionally set an invalid ingredients; it's following the rules, but no ingredients are defined.
         }
 
         serializer = RecipeSerializer(data=payload)
@@ -69,9 +69,9 @@ class TestRecipeDeserializer(TestCase):
         when `serializer.is_valid()` performed.
         """
         payload = {
-            "name": "Raspberry Orange",
-            "type": Recipe.DRINK,
-            "ingredients": "This only contain one ingredient"
+            'name': 'Raspberry Orange',
+            'type': Recipe.DRINK,
+            'ingredients': 'This only contain one ingredient'
         }
 
         serializer = RecipeSerializer(data=payload)
@@ -91,9 +91,9 @@ class TestRecipeDeserializer(TestCase):
         when `serializer.is_valid()` performed.
         """
         payload = {
-            "name": "Baked Teriyaki Chicken",
-            "type": Recipe.MAIN_DISH,
-            "ingredients": "First ingredient#Second ingredient"
+            'name': 'Baked Teriyaki Chicken',
+            'type': Recipe.MAIN_DISH,
+            'ingredients': 'First ingredient#Second ingredient'
         }
 
         serializer = RecipeSerializer(data=payload)
@@ -118,9 +118,9 @@ class TestRecipeDeserializer(TestCase):
                        '1/4 teaspoon ground black pepper#'
                        '12 skinless chicken thighs')
         payload = {
-            "name": "Baked Teriyaki Chicken",
-            "type": Recipe.MAIN_DISH,
-            "ingredients": ingredients
+            'name': 'Baked Teriyaki Chicken',
+            'type': Recipe.MAIN_DISH,
+            'ingredients': ingredients
         }
 
         serializer = RecipeSerializer(data=payload)
@@ -129,3 +129,47 @@ class TestRecipeDeserializer(TestCase):
         self.assertEqual(payload['name'], serializer.validated_data['name'])
         self.assertEqual(payload['type'], serializer.validated_data['type'])
         self.assertEqual(payload['ingredients'], serializer.validated_data['ingredients'])
+
+    def test_recipe_deserializer_update_recipe_with_no_ingredients_is_not_allowed(self):
+        ingredients = ('Blend 1 cup each orange juice and raspberries#'
+                       '1/2 cup plain yogurt#'
+                       '1 cup ice#and sugar to taste')
+        data = {
+            'name': 'Raspberry Orange',
+            'type': Recipe.DRINK,
+            'ingredients': ingredients
+        }
+        recipe = Recipe.objects.create(**data)
+
+        data['ingredients'] = "#   #"  # required to check custom field validation on Recipe model
+        serializer = RecipeSerializer(instance=recipe, data=data)
+
+        with self.assertRaises(ValidationError) as ctx:
+            serializer.is_valid(raise_exception=True)
+
+        expected = {
+            'ingredients': [ErrorDetail(string='Ensure any recipe has at least one ingredient defined.', code='invalid')]
+        }
+        self.assertDictEqual(ctx.exception.detail, expected)
+
+    def test_recipe_deserializer_update_drink_recipe_with_invalid_ingredients_is_not_allowed(self):
+        ingredients = ('Blend 1 cup each orange juice and raspberries#'
+                       '1/2 cup plain yogurt#'
+                       '1 cup ice#and sugar to taste')
+        data = {
+            'name': 'Raspberry Orange',
+            'type': Recipe.DRINK,
+            'ingredients': ingredients
+        }
+        recipe = Recipe.objects.create(**data)
+
+        data['ingredients'] = "First ingredients"  # required to check object-level validation on Recipe model
+        serializer = RecipeSerializer(instance=recipe, data=data)
+
+        with self.assertRaises(ValidationError) as ctx:
+            serializer.is_valid(raise_exception=True)
+
+        expected = {
+            'ingredients': [ErrorDetail(string='Any drink recipe has at least two ingredients defined.', code='invalid')]
+        }
+        self.assertDictEqual(ctx.exception.detail, expected)
