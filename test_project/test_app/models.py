@@ -16,17 +16,6 @@ class Recipe(models.Model):
     type = models.CharField(choices=RECIPE_TYPES, max_length=25)
     ingredients = models.TextField(validators=[validate_ingredients])
 
-    def strip_empty_ingredients(self, ingredients):
-        """
-        Return filtered ingredients from an empty string or a string that contain only spaces.
-        """
-        if not ingredients:
-            return ''
-
-        list_of_ingredient = str(ingredients).split('#')
-        valid_ingredients = list(filter(lambda ingredient: ingredient and not ingredient.isspace(), list_of_ingredient))
-        return '#'.join(valid_ingredients)
-
     def clean(self):
         """
         An example of object-level validation for a recipe ingredients.
@@ -36,8 +25,6 @@ class Recipe(models.Model):
         Hence we also wanted to set the minimum number of ingredients for a `drink` and `main dish` recipe which
         can be validated by both Django Admin and Serializer through `serializer.is_valid()`.
         """
-
-        self.ingredients = self.strip_empty_ingredients(self.ingredients)
         size_ingredients = len(str(self.ingredients).split('#'))
 
         # Assume that any recipe for a drink should contain at least two ingredients.

@@ -20,8 +20,6 @@ class TestRecipeSerializer(TestCase):
         recipe = Recipe(**data)
         recipe.save()
 
-        recipe = Recipe.objects.first()
-
         serializer = RecipeSerializer(data=data)
         serializer.is_valid(True)
 

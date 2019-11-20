@@ -8,9 +8,8 @@ def validate_ingredients(value):
     can use it with no code duplication required.
     https://docs.djangoproject.com/en/2.2/ref/validators/
     """
-    # Local import required to avoid circular dependency
-    from .models import Recipe
+    ingredients = str(value).split('#') if value else []
+    filtered_ingredients = list(filter(lambda ingredient: ingredient and not ingredient.isspace(), ingredients))
 
-    ingredients = Recipe().strip_empty_ingredients(value)
-    if not ingredients or len(ingredients.split('#')) < 1:
+    if len(filtered_ingredients) < 1:
         raise ValidationError('Ensure any recipe has at least one ingredient defined.', 'invalid')
