@@ -102,3 +102,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+.vscode
+
+# PyCharm project settings
+.idea
+
+# Emacs
+*~
