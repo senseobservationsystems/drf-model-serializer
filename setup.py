@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="drf-model-serializer",
-    version="0.0.1",
+    version="0.0.2",
     author="Panji Y. Wiwaha",
     author_email="panjiyudasetya@gmail.com",
     description="A simple library that enhance 'ModelSerializer' class so that it performs object-level validation for free.",
